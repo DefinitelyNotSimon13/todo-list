@@ -1,5 +1,5 @@
 use color_eyre::Result;
-use sqlx::{query, types::time::OffsetDateTime, Database, PgPool, Pool};
+use sqlx::{query, types::time::OffsetDateTime, PgPool};
 use uuid::Uuid;
 
 use super::{IntoTodoItem, TodoItem};

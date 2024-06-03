@@ -1,9 +1,9 @@
-use core::fmt;
+
 use std::{cmp::min, fmt::Write, thread, time::Duration};
 
 use clap::{command, Parser, Subcommand};
 use console::style;
-use dialoguer::{theme::ColorfulTheme, Confirm, Editor, FuzzySelect, Input};
+use dialoguer::{theme::ColorfulTheme, Confirm, FuzzySelect, Input};
 use indicatif::{ProgressBar, ProgressState, ProgressStyle};
 
 pub mod dialogue;
@@ -62,17 +62,17 @@ impl Cli {
             return;
         }
 
-        let task_name: String = Input::with_theme(theme)
+        let _task_name: String = Input::with_theme(theme)
             .with_prompt("Task Name")
             .interact_text()
             .unwrap();
 
-        let task_description: String = Input::with_theme(theme)
+        let _task_description: String = Input::with_theme(theme)
             .with_prompt("Description")
             .interact_text()
             .unwrap();
 
-        let task_category = FuzzySelect::with_theme(theme)
+        let _task_category = FuzzySelect::with_theme(theme)
             .with_prompt("Category")
             .default(0)
             .items(&selection[..])

@@ -1,4 +1,4 @@
-use std::fmt;
+
 use time::{Month, OffsetDateTime, Time};
 
 use color_eyre::Result;

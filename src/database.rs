@@ -1,10 +1,9 @@
 use color_eyre::Result;
-use std::{env, path::Path};
-use uuid::Uuid;
+
+
 
 use sqlx::{
-    postgres::{PgPoolOptions, PgRow},
-    query, query_as, Connection, PgPool, Postgres,
+    postgres::{PgPoolOptions}, Connection, PgPool,
 };
 
 pub struct Database {
