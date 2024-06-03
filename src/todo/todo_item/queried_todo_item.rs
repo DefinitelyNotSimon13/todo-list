@@ -14,7 +14,7 @@ pub struct QueriedTodoItem {
     pub updated_at: OffsetDateTime,
 }
 
-impl IntoTodoItem for &QueriedTodoItem {
+impl IntoTodoItem for QueriedTodoItem {
     fn into_todo_item(&self) -> TodoItem {
         TodoItem {
             id: Some(self.id),

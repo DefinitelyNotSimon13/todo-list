@@ -18,10 +18,7 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Command {
-    #[command(arg_required_else_help = true)]
-    Add {
-        item: String,
-    },
+    Add,
     List,
     Debug,
 }

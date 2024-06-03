@@ -1,4 +1,5 @@
-use sqlx::types::time::OffsetDateTime;
+use color_eyre::Result;
+use sqlx::{query, types::time::OffsetDateTime, Database, PgPool, Pool};
 use uuid::Uuid;
 
 use super::{IntoTodoItem, TodoItem};
@@ -24,6 +25,22 @@ impl CreatedTodoItem {
             deadline,
             created_at: OffsetDateTime::now_utc(),
         }
+    }
+    pub async fn insert_into_db(&self, connection: &PgPool) -> Result<Uuid> {
+        let uuid = Uuid::new_v4();
+        query!(
+            "
+INSERT INTO todo_item (uuid, title, description, deadline, created_at) VALUES ($1, $2, $3, $4, $5)
+",
+            Uuid::new_v4(),
+            self.title,
+            self.description,
+            self.deadline,
+            self.created_at,
+        )
+        .fetch_all(connection)
+        .await?;
+        Ok(uuid)
     }
 }
 impl IntoTodoItem for CreatedTodoItem {

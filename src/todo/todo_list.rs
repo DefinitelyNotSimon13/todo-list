@@ -1,19 +1,38 @@
+use color_eyre::eyre::Result;
+use sqlx::query;
+use sqlx::query_as;
+use uuid::Uuid;
+
+use crate::database::Database;
+use crate::todo::todo_item::QueriedTodoItem;
+
+use super::todo_item::CreatedTodoItem;
 use super::TodoItem;
 
-#[derive(Default)]
-pub struct TodoList {
+pub struct TodoList<'d> {
+    database: &'d Database,
     items: Vec<TodoItem>,
 }
 
-impl TodoList {
-    pub fn new(items: Vec<TodoItem>) -> Self {
-        Self { items }
+impl<'d> TodoList<'d> {
+    pub fn new(items: Vec<TodoItem>, database: &'d Database) -> Self {
+        Self { database, items }
     }
-    pub fn add_item(&mut self, item: TodoItem) {
-        self.items.push(item)
+    pub async fn add_item(&mut self, item: CreatedTodoItem) -> Result<TodoItem> {
+        let uuid = item.insert_into_db(self.database.get_connection()).await?;
+        // Sanity check
+        let item = TodoItem::query_with_uuid(uuid, self.database.get_connection()).await?;
+        self.items.push(item.clone());
+
+        Ok(item)
     }
 
     pub fn get_items(&self) -> &Vec<TodoItem> {
         &self.items
+    }
+    pub async fn read(&mut self) -> Result<()> {
+        let items = TodoItem::query_all(self.database.get_connection()).await?;
+        self.items.extend(items);
+        Ok(())
     }
 }

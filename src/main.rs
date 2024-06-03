@@ -1,17 +1,12 @@
-use std::{env, process::exit, thread, time::Duration};
+use std::env;
 
-use clap::{Args, Parser, Subcommand};
-use cli::{Cli, Command};
+use cli::{dialogue::create_item_dialogue, Cli, Command};
 use color_eyre::Result;
 use console::{style, Term};
 use database::Database;
 use dotenv::dotenv;
-use todo::todo_item::CreatedTodoItem;
 
-use crate::{
-    cli::dialogue::create_item_dialogue,
-    todo::{TodoItem, TodoList},
-};
+use crate::todo::TodoList;
 
 mod cli;
 mod database;
@@ -25,28 +20,34 @@ async fn main() -> Result<()> {
     term.clear_screen()?;
     println!("Hello, {}!", style("World").cyan().bold());
 
-    Cli::indicatif_test(10);
+    //Cli::indicatif_test(10);
     //Cli::dialoguer_test();
-    let item = create_item_dialogue()?;
-    println!("{item:#?}");
-    exit(0);
+    //let item = create_item_dialogue()?;
+    //println!("{item:#?}");
+    let database: Database = Database::new(&env::var("DATABASE_URL")?).await?;
 
-    let mut database: Database = Database::new(&env::var("DATABASE_URL")?).await?;
-    let item = CreatedTodoItem::new("Hello", Some("This is a test"), None);
-    //database.add_item(&item).await?;
+    let mut todo_list = TodoList::new(Vec::default(), &database);
+    todo_list.read().await?;
 
     match Cli::get_command() {
-        Command::Add { item } => println!("Should add item {item}"),
-        Command::List => {
-            database
-                .retrieve_data()
-                .await?
-                .get_items()
-                .iter()
-                .for_each(|item| println!("{item:#?}"));
-        }
+        Command::Add => add_item(&mut todo_list).await?,
+        Command::List => list_items_dbg(&todo_list),
         Command::Debug => println!("Debug command"),
     }
 
+    Ok(())
+}
+
+fn list_items_dbg(todo_list: &TodoList) {
+    todo_list
+        .get_items()
+        .iter()
+        .for_each(|item| println!("{item:#?}"));
+}
+
+async fn add_item(todo_list: &mut TodoList<'_>) -> Result<()> {
+    let item = create_item_dialogue()?;
+    let item = todo_list.add_item(item).await?;
+    println!("Added item {item:#?}");
     Ok(())
 }
