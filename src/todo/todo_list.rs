@@ -3,11 +3,9 @@ use sqlx::query;
 use sqlx::query_as;
 use uuid::Uuid;
 
-use crate::database::Database;
-use crate::todo::todo_item::QueriedTodoItem;
-
 use super::todo_item::CreatedTodoItem;
 use super::TodoItem;
+use crate::database::Database;
 
 pub struct TodoList<'d> {
     database: &'d Database,

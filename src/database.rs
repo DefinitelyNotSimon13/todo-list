@@ -7,11 +7,6 @@ use sqlx::{
     query, query_as, Connection, PgPool, Postgres,
 };
 
-use crate::todo::{
-    todo_item::{CreatedTodoItem, QueriedTodoItem},
-    TodoItem, TodoList,
-};
-
 pub struct Database {
     connection: PgPool,
 }
