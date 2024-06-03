@@ -48,6 +48,7 @@ fn list_items_dbg(todo_list: &TodoList) {
         ]);
 
     todo_list.get_items().iter().for_each(|item| {
+        let item = item.into_local();
         table.add_row(vec![
             item.title.clone(),
             item.description

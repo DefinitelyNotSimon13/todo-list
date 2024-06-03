@@ -5,17 +5,20 @@ use uuid::Uuid;
 use super::{IntoTodoItem, TodoItem};
 
 #[derive(Debug)]
-pub struct CreatedTodoItem {
+pub struct LocalTodoItem {
+    pub uuid: Uuid,
     pub title: String,
     pub description: Option<String>,
     pub completed: bool,
     pub deadline: Option<OffsetDateTime>,
     pub created_at: OffsetDateTime,
+    pub updated_at: OffsetDateTime,
 }
 
-impl CreatedTodoItem {
+impl LocalTodoItem {
     pub fn new(title: &str, description: Option<&str>, deadline: Option<OffsetDateTime>) -> Self {
         Self {
+            uuid: Uuid::new_v4(),
             title: title.to_owned(),
             description: match description {
                 Some(str) => Some(str.to_owned()),
@@ -24,15 +27,15 @@ impl CreatedTodoItem {
             completed: false,
             deadline,
             created_at: OffsetDateTime::now_utc(),
+            updated_at: OffsetDateTime::now_utc(),
         }
     }
     pub async fn insert_into_db(&self, connection: &PgPool) -> Result<Uuid> {
-        let uuid = Uuid::new_v4();
         query!(
             "
 INSERT INTO todo_item (uuid, title, description, deadline, created_at) VALUES ($1, $2, $3, $4, $5)
 ",
-            Uuid::new_v4(),
+            self.uuid,
             self.title,
             self.description,
             self.deadline,
@@ -40,10 +43,10 @@ INSERT INTO todo_item (uuid, title, description, deadline, created_at) VALUES ($
         )
         .fetch_all(connection)
         .await?;
-        Ok(uuid)
+        Ok(self.uuid)
     }
 }
-impl IntoTodoItem for CreatedTodoItem {
+impl IntoTodoItem for LocalTodoItem {
     fn into_todo_item(&self) -> super::TodoItem {
         TodoItem {
             id: None,

@@ -1,9 +1,6 @@
 use color_eyre::eyre::Result;
 
-
-
-
-use super::todo_item::CreatedTodoItem;
+use super::todo_item::LocalTodoItem;
 use super::TodoItem;
 use crate::database::Database;
 
@@ -16,7 +13,7 @@ impl<'d> TodoList<'d> {
     pub fn new(items: Vec<TodoItem>, database: &'d Database) -> Self {
         Self { database, items }
     }
-    pub async fn add_item(&mut self, item: CreatedTodoItem) -> Result<TodoItem> {
+    pub async fn add_item(&mut self, item: LocalTodoItem) -> Result<TodoItem> {
         let uuid = item.insert_into_db(self.database.get_connection()).await?;
         // Sanity check
         let item = TodoItem::query_with_uuid(uuid, self.database.get_connection()).await?;

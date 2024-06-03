@@ -1,4 +1,3 @@
-
 use time::{Month, OffsetDateTime, Time};
 
 use color_eyre::Result;
@@ -6,9 +5,9 @@ use dialoguer::{theme::ColorfulTheme, Confirm, Input};
 use regex::Regex;
 use sqlx::types::time::Date;
 
-use crate::todo::todo_item::CreatedTodoItem;
+use crate::todo::todo_item::LocalTodoItem;
 
-pub fn create_item_dialogue() -> Result<CreatedTodoItem> {
+pub fn create_item_dialogue() -> Result<LocalTodoItem> {
     let theme = &ColorfulTheme::default();
     let title: String = Input::with_theme(theme)
         .with_prompt("Title")
@@ -29,7 +28,7 @@ pub fn create_item_dialogue() -> Result<CreatedTodoItem> {
         .with_prompt("Do you want to set a deadline?")
         .interact()?
     {
-        return Ok(CreatedTodoItem::new(&title, description, None));
+        return Ok(LocalTodoItem::new(&title, description, None));
     }
 
     let date_input: String = Input::with_theme(theme)
@@ -74,7 +73,7 @@ pub fn create_item_dialogue() -> Result<CreatedTodoItem> {
 
     let time = Time::from_hms(00, 00, 00)?;
 
-    Ok(CreatedTodoItem::new(
+    Ok(LocalTodoItem::new(
         &title,
         description,
         Some(OffsetDateTime::new_utc(date, time)),
