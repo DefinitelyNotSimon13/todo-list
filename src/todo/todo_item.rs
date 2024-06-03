@@ -13,14 +13,14 @@ pub trait IntoTodoItem {
 #[derive(Clone, Debug)]
 #[allow(dead_code)]
 pub struct TodoItem {
-    id: Option<i32>,
-    uuid: Uuid,
-    title: String,
-    description: Option<String>,
-    completed: bool,
-    deadline: Option<OffsetDateTime>,
-    created_at: OffsetDateTime,
-    updated_at: OffsetDateTime,
+    pub id: Option<i32>,
+    pub uuid: Uuid,
+    pub title: String,
+    pub description: Option<String>,
+    pub completed: bool,
+    pub deadline: Option<OffsetDateTime>,
+    pub created_at: OffsetDateTime,
+    pub updated_at: OffsetDateTime,
 }
 
 impl TodoItem {
