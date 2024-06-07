@@ -1,5 +1,5 @@
--- Add migration script here
-CREATE TABLE todo_item (
+-- Your SQL goes here
+CREATE TABLE todo_items (
     id SERIAL PRIMARY KEY,
     uuid UUID NOT NULL,
     title TEXT NOT NULL,
