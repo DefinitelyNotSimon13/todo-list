@@ -1,4 +1,3 @@
-use self::models::TodoItem;
 use color_eyre::Result;
 use diesel::prelude::*;
 use std::env::args;

@@ -1,5 +1,4 @@
 use color_eyre::Result;
-use std::io::{stdin, Read};
 use todo_list::{cli::create_item_dialogue::create_item_dialogue, database::Database, *};
 
 fn main() -> Result<()> {

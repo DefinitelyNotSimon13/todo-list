@@ -1,6 +1,5 @@
 use color_eyre::eyre::Result;
 use diesel::prelude::*;
-use diesel::PgConnection;
 
 use crate::models::UpdatedTodoItem;
 use crate::DbConnection;

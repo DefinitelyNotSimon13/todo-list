@@ -47,11 +47,12 @@ pub fn update_item_dialogue(todo_item: TodoItem) -> Result<UpdatedTodoItem> {
             format!("{}", deadline.format("%H:%M"))
         });
     let time = input_with_time_validation("Time (hh:mm)", &initial_time, false)?;
+    println!("I am here");
 
     let deadline = if date.is_empty() {
         None
     } else {
-        let deadline_string = format!("{} {}", date, time);
+        let deadline_string = format!("{} {}:00", date, time);
         Some(
             NaiveDateTime::parse_from_str(&deadline_string, "%d.%m.%Y %H:%M:%S")?
                 .and_local_timezone(Local)

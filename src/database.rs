@@ -1,6 +1,5 @@
 use color_eyre::Result;
-use diesel::{r2d2::ConnectionManager, Connection, PgConnection};
-use r2d2::PooledConnection;
+use diesel::{r2d2::ConnectionManager, PgConnection};
 
 use crate::{DbConnection, DbPool};
 
