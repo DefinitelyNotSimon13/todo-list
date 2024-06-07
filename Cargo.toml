@@ -19,3 +19,5 @@ tokio = { version = "1.37.0", features = ["full"] }
 uuid = { version = "1.8.0", features = ["v4"] }
 diesel = { version = "2.2.0", features = ["postgres", "uuid", "chrono"] }
 chrono = "0.4.38"
+rayon = "1.10.0"
+rand = "0.8.5"
