@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use diesel::PgConnection;
 
 use crate::models::UpdatedTodoItem;
+use crate::DbConnection;
 use crate::{
     create_item,
     database::Database,
@@ -18,8 +19,12 @@ impl<'d> TodoList<'d> {
         Self { database }
     }
     pub fn add_item(&mut self, item: NewTodoItem) -> Result<TodoItem> {
-        let item = create_item(self.database.get_connection(), item)?;
+        let item = create_item(&mut self.get_db_connection(), item)?;
         Ok(item)
+    }
+
+    pub fn add_item_static(conn: &mut DbConnection, item: NewTodoItem) {
+        let _ = create_item(conn, item).unwrap();
     }
 
     pub fn get_items(&mut self, get_all: bool) -> Result<Vec<TodoItem>> {
@@ -29,11 +34,11 @@ impl<'d> TodoList<'d> {
             Ok(todo_items
                 .filter(completed.eq(false))
                 .select(TodoItem::as_select())
-                .load(self.get_db_connection())?)
+                .load(&mut self.get_db_connection())?)
         } else {
             Ok(todo_items
                 .select(TodoItem::as_select())
-                .load(self.get_db_connection())?)
+                .load(&mut self.get_db_connection())?)
         }
     }
 
@@ -43,7 +48,7 @@ impl<'d> TodoList<'d> {
         Ok(todo_items
             .find(queried_id)
             .select(TodoItem::as_select())
-            .first(self.get_db_connection())?)
+            .first(&mut self.get_db_connection())?)
     }
 
     pub fn get_item_with_title(&mut self, queried_title: &str) -> Result<Vec<TodoItem>> {
@@ -52,7 +57,7 @@ impl<'d> TodoList<'d> {
         Ok(todo_items
             .filter(title.like(format!("%{queried_title}%")))
             .select(TodoItem::as_select())
-            .load(self.get_db_connection())?)
+            .load(&mut self.get_db_connection())?)
     }
 
     pub fn complete_item(&mut self, id: i32) -> Result<TodoItem> {
@@ -61,12 +66,12 @@ impl<'d> TodoList<'d> {
         let completed_item = diesel::update(todo_items.find(id))
             .set(completed.eq(true))
             .returning(TodoItem::as_returning())
-            .get_result(self.get_db_connection())?;
+            .get_result(&mut self.get_db_connection())?;
 
         Ok(completed_item)
     }
 
-    pub fn get_db_connection(&mut self) -> &mut PgConnection {
+    pub fn get_db_connection(&mut self) -> DbConnection {
         self.database.get_connection()
     }
 
@@ -74,7 +79,7 @@ impl<'d> TodoList<'d> {
         use crate::schema::todo_items::dsl::{id, todo_items};
 
         let deleted_num = diesel::delete(todo_items.filter(id.eq(deleted_id)))
-            .execute(self.get_db_connection())?;
+            .execute(&mut self.get_db_connection())?;
         Ok(deleted_num)
     }
 
@@ -84,7 +89,7 @@ impl<'d> TodoList<'d> {
         let updated_item = diesel::update(todo_items.find(id))
             .set(&updated_item)
             .returning(TodoItem::as_returning())
-            .get_result(self.get_db_connection())?;
+            .get_result(&mut self.get_db_connection())?;
 
         Ok(updated_item)
     }

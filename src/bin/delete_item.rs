@@ -11,8 +11,9 @@ fn main() -> Result<()> {
     let pattern = format!("%{}%", target);
 
     let mut database = Database::new(&get_connection_string()?)?;
-    let connection = database.get_connection();
-    let num_deleted = diesel::delete(todo_items.filter(title.like(pattern))).execute(connection)?;
+    let mut connection = database.get_connection();
+    let num_deleted =
+        diesel::delete(todo_items.filter(title.like(pattern))).execute(&mut connection)?;
 
     println!("Deleted {} posts", num_deleted);
 

@@ -14,12 +14,12 @@ fn main() -> Result<()> {
         .expect("Invalid ID");
 
     let mut database = Database::new(&get_connection_string()?)?;
-    let connection = database.get_connection();
+    let mut connection = database.get_connection();
 
     let item = diesel::update(todo_items.find(id))
         .set(completed.eq(true))
         .returning(TodoItem::as_returning())
-        .get_result(connection)?;
+        .get_result(&mut connection)?;
 
     println!("Completed task {}", item.title);
     Ok(())

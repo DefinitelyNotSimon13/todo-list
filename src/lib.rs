@@ -1,7 +1,7 @@
 use std::env;
 
 use color_eyre::eyre::Result;
-use diesel::{PgConnection, RunQueryDsl, SelectableHelper};
+use diesel::{r2d2::ConnectionManager, PgConnection, RunQueryDsl, SelectableHelper};
 use dotenvy::dotenv;
 use models::{NewTodoItem, TodoItem};
 
@@ -10,6 +10,9 @@ pub mod database;
 pub mod models;
 pub mod schema;
 pub mod todo;
+
+pub type DbPool = r2d2::Pool<ConnectionManager<PgConnection>>;
+pub type DbConnection = r2d2::PooledConnection<ConnectionManager<PgConnection>>;
 
 pub fn get_connection_string() -> Result<String> {
     dotenv().ok();

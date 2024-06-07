@@ -1,7 +1,18 @@
+use std::sync::Arc;
+
+use color_eyre::eyre::Result;
+use diesel::r2d2::ConnectionManager;
+use diesel::PgConnection;
+use dotenvy::dotenv;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
-use rayon::prelude::*;
-use std::process::Command;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use todo_list::database::Database;
+use todo_list::get_connection_string;
+use todo_list::models::NewTodoItem;
+use todo_list::todo::TodoList;
+
+use todo_list::DbPool;
 
 // Function to generate a random TODO item name
 fn generate_todo_item() -> String {
@@ -35,19 +46,30 @@ fn generate_todo_item() -> String {
     items.choose(&mut rng).unwrap().to_string()
 }
 
-fn main() {
-    // Generate 100 tasks
-    let tasks: Vec<String> = (31_347..=5_000_000)
+#[tokio::main]
+async fn main() -> Result<()> {
+    dotenv().ok();
+
+    let database_url = get_connection_string().unwrap();
+    let manager = ConnectionManager::<PgConnection>::new(database_url);
+    let pool = r2d2::Pool::builder()
+        .build(manager)
+        .expect("failed to create pool");
+
+    //let pool = Arc::new(pool);
+
+    let tasks: Vec<String> = (0..=500_000)
         .map(|i| format!("{} {}", generate_todo_item(), i))
         .collect();
 
-    // Execute the tasks in parallel using rayon
+    //let mut handles = vec![];
+    //let batch_size = 10_000;
     tasks.par_iter().for_each(|task| {
-        println!("Running: ./target/release/todo-list add \"{}\"", task);
-        Command::new("./target/release/todo-list")
-            .arg("add")
-            .arg(task)
-            .status()
-            .expect("Failed to execute command");
+        println!("Adding task: {task}");
+        TodoList::add_item_static(
+            &mut pool.get().unwrap(),
+            NewTodoItem::new(task.to_string(), None, None),
+        )
     });
+    Ok(())
 }

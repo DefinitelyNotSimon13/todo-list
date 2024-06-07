@@ -3,7 +3,7 @@ use color_eyre::Result;
 use clap::{command, Parser, Subcommand};
 use dialoguer::{theme::ColorfulTheme, Confirm, FuzzySelect};
 
-use crate::{models::TodoItem, todo::TodoList};
+use crate::{todo::TodoList};
 
 pub mod create_item_dialogue;
 pub mod dialogue_pieces;

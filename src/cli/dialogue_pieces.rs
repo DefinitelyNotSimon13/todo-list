@@ -1,4 +1,4 @@
-use color_eyre::{owo_colors::OwoColorize, Result};
+use color_eyre::{Result};
 use dialoguer::{theme::ColorfulTheme, Confirm, FuzzySelect, Input};
 use regex::Regex;
 

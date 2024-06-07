@@ -2,8 +2,7 @@ use chrono::{Local, NaiveDateTime};
 
 use crate::models::{TodoItem, UpdatedTodoItem};
 use color_eyre::Result;
-use dialoguer::{theme::ColorfulTheme, Confirm, Input};
-use regex::Regex;
+use dialoguer::{theme::ColorfulTheme, Confirm};
 
 use super::dialogue_pieces::{
     input_with_date_validation, input_with_time_validation, input_without_validation,

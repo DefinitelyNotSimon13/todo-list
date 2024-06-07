@@ -14,12 +14,12 @@ fn main() -> Result<()> {
         .expect("Invalid ID");
 
     let mut database = Database::new(&get_connection_string()?)?;
-    let connection = database.get_connection();
+    let mut connection = database.get_connection();
 
     let item = todo_items
         .find(id)
         .select(TodoItem::as_select())
-        .first(connection)
+        .first(&mut connection)
         .optional()?;
 
     match item {

@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres
+    command: -c 'max_connections=500'
     restart: always
     environment: 
       POSTGRES_PASSWORD: admin
