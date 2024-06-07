@@ -1,22 +1,18 @@
 use color_eyre::Result;
-
-
-
-use sqlx::{
-    postgres::{PgPoolOptions}, Connection, PgPool,
-};
+use diesel::{Connection, PgConnection};
 
 pub struct Database {
-    connection: PgPool,
+    connection: PgConnection,
 }
 
 impl Database {
-    pub async fn new(url: &str) -> Result<Self> {
-        let connection = PgPoolOptions::new().max_connections(5).connect(url).await?;
-        Ok(Self { connection })
+    pub fn new(url: &str) -> Result<Self> {
+        Ok(Self {
+            connection: PgConnection::establish(url)?,
+        })
     }
 
-    pub fn get_connection(&self) -> &PgPool {
-        &self.connection
+    pub fn get_connection(&mut self) -> &mut PgConnection {
+        &mut self.connection
     }
 }
