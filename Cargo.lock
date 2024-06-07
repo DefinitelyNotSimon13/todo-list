@@ -1002,6 +1002,7 @@ dependencies = [
  "diesel",
  "dotenvy",
  "indicatif",
+ "lazy_static",
  "rand",
  "rayon",
  "regex",

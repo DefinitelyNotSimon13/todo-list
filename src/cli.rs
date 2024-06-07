@@ -6,6 +6,7 @@ use dialoguer::{theme::ColorfulTheme, Confirm, FuzzySelect};
 use crate::{models::TodoItem, todo::TodoList};
 
 pub mod create_item_dialogue;
+pub mod dialogue_pieces;
 pub mod update_item_dialogue;
 
 #[derive(Debug, Parser)]

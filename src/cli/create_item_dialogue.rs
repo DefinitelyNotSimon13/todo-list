@@ -1,58 +1,35 @@
+use crate::models::NewTodoItem;
 use chrono::{Local, NaiveDateTime};
-
-use crate::{
-    models::{NewTodoItem, TodoItem},
-    todo::TodoList,
-};
 use color_eyre::Result;
-use dialoguer::{theme::ColorfulTheme, Confirm, FuzzySelect, Input};
-use regex::Regex;
+
+use super::{
+    confirm,
+    dialogue_pieces::{
+        input_with_date_validation, input_with_time_validation, input_without_validation,
+    },
+};
 
 pub fn create_item_dialogue() -> Result<NewTodoItem> {
-    let theme = &ColorfulTheme::default();
-    let title: String = Input::with_theme(theme)
-        .with_prompt("Title")
-        .interact_text()?;
-
-    let description: String = Input::with_theme(theme)
-        .with_prompt("Description")
-        .allow_empty(true)
-        .interact()?;
-
-    let description: Option<String> = if description.is_empty() {
+    let title = input_without_validation("Title", "", false)?;
+    let description = input_without_validation("Description", "", true)?;
+    let description = if description.is_empty() {
         None
     } else {
         Some(description)
     };
 
-    if !Confirm::with_theme(theme)
-        .with_prompt("Do you want to set a deadline?")
-        .interact()?
-    {
+    if !confirm("Do you want to set a deadline?") {
         return Ok(NewTodoItem::new(title, description, None));
     }
 
-    let date_input: String = Input::with_theme(theme)
-        .with_prompt("Date (dd.mm.yyyy)")
-        .validate_with({
-            let date_regex =
-                Regex::new(r"^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[012])\.\d{4}$").unwrap();
-            move |input: &String| -> Result<(), &str> {
-                if date_regex.is_match(input) {
-                    Ok(())
-                } else {
-                    Err("Not a valid date!")
-                }
-            }
-        })
-        .interact_text()?;
+    let date = input_with_date_validation("Date (dd.mm.yyyy)", "", false)?;
+    let time = input_with_time_validation("Time (hh:mm)", "", false)?;
 
-    let date_time_input = format!("{} 00:00:00", date_input);
-    let date_time = NaiveDateTime::parse_from_str(&date_time_input, "%d.%m.%Y %H:%M:%S")?
+    let deadline_string = format!("{} {}:00", date, time);
+    let deadline = NaiveDateTime::parse_from_str(&deadline_string, "%d.%m.%Y %H:%M:%S")?
         .and_local_timezone(Local)
         .unwrap()
         .to_utc();
 
-    Ok(NewTodoItem::new(title, description, Some(date_time)))
+    Ok(NewTodoItem::new(title, description, Some(deadline)))
 }
-

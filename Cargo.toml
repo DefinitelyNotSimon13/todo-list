@@ -21,3 +21,4 @@ diesel = { version = "2.2.0", features = ["postgres", "uuid", "chrono"] }
 chrono = "0.4.38"
 rayon = "1.10.0"
 rand = "0.8.5"
+lazy_static = "1.4.0"

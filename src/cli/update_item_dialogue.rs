@@ -1,33 +1,26 @@
 use chrono::{Local, NaiveDateTime};
 
-use crate::{
-    models::{NewTodoItem, TodoItem, UpdatedTodoItem},
-    todo::TodoList,
-};
+use crate::models::{TodoItem, UpdatedTodoItem};
 use color_eyre::Result;
-use dialoguer::{theme::ColorfulTheme, Confirm, FuzzySelect, Input};
+use dialoguer::{theme::ColorfulTheme, Confirm, Input};
 use regex::Regex;
+
+use super::dialogue_pieces::{
+    input_with_date_validation, input_with_time_validation, input_without_validation,
+};
 
 pub fn update_item_dialogue(todo_item: TodoItem) -> Result<UpdatedTodoItem> {
     let theme = &ColorfulTheme::default();
     let mut updated_item = UpdatedTodoItem::from(todo_item);
 
-    let title: String = Input::with_theme(theme)
-        .with_prompt("Title")
-        .with_initial_text(updated_item.get_title())
-        .interact_text()?;
-
+    let title = input_without_validation("Title", updated_item.get_title(), false)?;
     updated_item.update_title(&title);
 
-    let description: String = Input::with_theme(theme)
-        .with_prompt("Description")
-        .with_initial_text(match updated_item.get_description() {
-            Some(desc) => desc,
-            None => "",
-        })
-        .allow_empty(true)
-        .interact_text()?;
-
+    let description = input_without_validation(
+        "Description",
+        updated_item.get_description().unwrap_or(""),
+        true,
+    )?;
     let description: Option<String> = if description.is_empty() {
         None
     } else {
@@ -42,32 +35,26 @@ pub fn update_item_dialogue(todo_item: TodoItem) -> Result<UpdatedTodoItem> {
     {
         return Ok(updated_item);
     }
-    let date_input: String = Input::with_theme(theme)
-        .with_prompt("Date (dd.mm.yyyy)")
-        .with_initial_text(match updated_item.get_deadline() {
-            Some(deadline) => format!("{}", deadline.format("%d.%m.%Y")),
-            None => "".to_string(),
-        })
-        .allow_empty(true)
-        .validate_with({
-            let date_regex =
-                Regex::new(r"^(0[1-9]|[12][0-9]|3[01])\.(0[1-9]|1[012])\.\d{4}$").unwrap();
-            move |input: &String| -> Result<(), &str> {
-                if input.is_empty() || date_regex.is_match(input) {
-                    Ok(())
-                } else {
-                    Err("Not a valid date!")
-                }
-            }
-        })
-        .interact_text()?;
+    let initial_date = updated_item
+        .get_deadline()
+        .map_or("".to_string(), |deadline| {
+            format!("{}", deadline.format("%d.%m.%Y"))
+        });
+    let date = input_with_date_validation("Date (dd.mm.yyyy)", &initial_date, true)?;
 
-    let deadline = if date_input.is_empty() {
+    let initial_time = updated_item
+        .get_deadline()
+        .map_or("".to_string(), |deadline| {
+            format!("{}", deadline.format("%H:%M"))
+        });
+    let time = input_with_time_validation("Time (hh:mm)", &initial_time, false)?;
+
+    let deadline = if date.is_empty() {
         None
     } else {
-        let date_time_input = format!("{} 00:00:00", date_input);
+        let deadline_string = format!("{} {}", date, time);
         Some(
-            NaiveDateTime::parse_from_str(&date_time_input, "%d.%m.%Y %H:%M:%S")?
+            NaiveDateTime::parse_from_str(&deadline_string, "%d.%m.%Y %H:%M:%S")?
                 .and_local_timezone(Local)
                 .unwrap()
                 .to_utc(),
